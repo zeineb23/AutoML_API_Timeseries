@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Processing</title>
+    <script type="text/javascript">
+        async function checkStatus(task_id) {
+            const response = await fetch(`/status/${task_id}`);
+            const data = await response.json();
+
+            if (data.status === "done") {
+                window.location.href = `/results/${task_id}`;
+            } else if (data.status === "error") {
+                document.getElementById("status").innerText = "Error: " + data.error;
+            } else {
+                setTimeout(() => checkStatus(task_id), 1000);
+            }
+        }
+
+        window.onload = () => {
+            const task_id = "{{ task_id }}";
+            checkStatus(task_id);
+        };
+    </script>
+</head>
+<body>
+    <h1>Processing...</h1>
+    <p id="status">Your request is being processed. Please wait.</p>
+</body>
+</html>

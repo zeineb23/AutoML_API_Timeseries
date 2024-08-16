@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            width: 90%;
+            max-width: 800px;
+            margin: auto;
+            position: relative;
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #007BFF;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        strong {
+            color: #333;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .container p {
+            margin: 10px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-btn {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .results {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Form Submission Result</h2>
+        <p><strong>Name:</strong> {{ name }}</p>
+        <p><strong>Filename:</strong> {{ filename }}</p>
+        <p><strong>Content Type:</strong> {{ content_type }}</p>
+
+        <!--<h3>Training DataFrame Info:</h3>
+        <pre>{{ info_str }}</pre>
+
+        <h3>Training DataFrame Describe:</h3>
+        {{ describe_html|safe }}-->
+
+        <h3>Model MAPE:</h3>
+        <p>{{ mape }}%</p>
+        <h3>Components:</h3>
+        <p>{{ components }}</p>
+        <h3>Model type:</h3>
+        <p>{{ growth }}</p>
+        <h3>Scaling:</h3>
+        <p>Scale Data: {% if scale %}Yes{% else %}No{% endif %}</p>
+        <h3>Plot:</h3>
+        <img src="data:image/png;base64,{{ plot }}" alt="Forecasting Plot">
+        
+        <button class="button" id="predictButton">Predict</button>
+
+        <div id="predictModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Predict</h2>
+                <div class="input-group">
+                    <label for="startDate">From Date:</label>
+                    <input type="date" id="startDate" name="startDate">
+                </div>
+                <div class="input-group">
+                    <label for="endDate">To Date:</label>
+                    <input type="date" id="endDate" name="endDate">
+                </div>
+                <button class="submit-btn" id="submitPrediction">Submit</button>
+                <div class="results" id="predictionResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get modal elements
+        var modal = document.getElementById("predictModal");
+        var btn = document.getElementById("predictButton");
+        var span = document.getElementsByClassName("close")[0];
+        var submitBtn = document.getElementById("submitPrediction");
+
+        // Open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // Close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Submit prediction request
+        submitBtn.onclick = async function () {
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+            
+
+            try {
+                var response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "modelPath": "prophet_model.pkl",
+                        "dates": [startDate, endDate]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch predictions');
+                }
+
+                var resultHtml = await response.text();
+                console.log(resultHtml);  // Print the entire HTML response for debugging
+
+                // Extract the table part from resultHtml
+                var tableStartIndex = resultHtml.indexOf("<table");
+                var tableEndIndex = resultHtml.indexOf("</table>") + "</table>".length;
+                var tableHtml = resultHtml.substring(tableStartIndex, tableEndIndex);
+
+                // Display the prediction results (only the table)
+                var resultsDiv = document.getElementById("predictionResults");
+                console.log(tableHtml)
+                resultsDiv.innerHTML = tableHtml.replace(/\n/g, '');
+
+            } catch (error) {
+                console.error('Error:', error);
+                // Handle errors or display an error message in the UI
+                var resultsDiv = document.getElementById("predictionResults");
+                resultsDiv.innerHTML = "<p>Error: " + error.message + "</p>";
+            }
+        };
+
+    </script>
+</body>
+</html>
