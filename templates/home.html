@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <style>
+        .in{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .container{
+            width: 300px;
+            padding: 5%;
+            margin : 10%;
+            margin-left: 35%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Submit your dataset</h2>    
+        <form class="formulaire" action="/" method="post" enctype="multipart/form-data">
+            <input class="in" type="text" name="name"/>
+            <br/>
+            <input class="in" type="file" name="file"/>
+            <br/>
+            <div class="radio-group">
+                <label>Scale data:</label>
+                <br/>
+                <input type="radio" id="scale-yes" name="scale" value="yes"/>
+                <label for="scale-yes">Yes</label>
+                <br/>
+                <input type="radio" id="scale-no" name="scale" value="no"/>
+                <label for="scale-no">No</label>
+            </div>
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+</body>
+</html>
